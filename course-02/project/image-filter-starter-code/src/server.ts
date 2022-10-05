@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Router, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -15,7 +15,48 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
-  // endpoint to filter an image from a public url.
+  
+  app.get("/filteredimage", async ( req : Request, res : Response ) => {
+    let url = req.query.image_url;
+
+    if (!url) {
+      return res.status(400).send("Image url is required");
+    }
+
+    const filePath = await filterImageFromURL(url);
+    res.sendFile(filePath, function(){
+      deleteLocalFiles([filePath]);
+    });
+  });  
+  // app.get( "/filteredimage/", async( req: Request, res: Response ) => {
+  
+  //   let { image_url } = req.query.image_url;
+  //   const filteredImage = filterImageFromURL(image_url);
+            
+  //   if(filteredImage===undefined||filteredImage===null)
+  //     return res.status(400).send(`Unable to filter image`);
+  //   else
+  //     return res.status(200).send(image_url);
+  //           // return res.status(200)
+  //           //           .sendFile(filteredImage);
+  //    } );
+  // app.get("/filteredimage?image_url={{URL}}",async(req,res)=>{
+  //   console.log("in");
+  //   let { image_url } = req.params.image_url;
+  //   //Validate url
+  //   const isValideUrl = image_url.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+  //   if(isValideUrl == null)
+  //     return res.status(400).send(`Inavlid url! Try again with valid url`);
+  //   else{
+  //   //Process Image
+  //     const filteredImage = filterImageFromURL(image_url);
+  //     if(filteredImage===undefined||filteredImage===null)
+  //     return res.status(400).send(`Unable to filter image`);
+  //   else
+  //     return res.status(200).sendFile(filteredImage+'');
+  //   }
+  // })
+  // // endpoint to filter an image from a public url.
   // IT SHOULD
   //    1
   //    1. validate the image_url query
